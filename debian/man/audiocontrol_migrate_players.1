@@ -1,0 +1,27 @@
+.TH AUDIOCONTROL_MIGRATE_PLAYERS 1 "August 2026" "audiocontrol" "AudioControl Utilities"
+.SH NAME
+audiocontrol_migrate_players \- migrate player definitions from legacy config
+.SH SYNOPSIS
+.B audiocontrol_migrate_players
+\fICONFIG\fR
+.SH DESCRIPTION
+.B audiocontrol_migrate_players
+migrates player definitions from a legacy
+.B audiocontrol.json
+file into the
+.B players.d
+layout used by newer AudioControl versions.
+.PP
+The command is primarily intended for package upgrade workflows.
+.SH ARGUMENTS
+.TP
+.I CONFIG
+Path to the legacy AudioControl configuration file (typically
+.I /etc/audiocontrol/audiocontrol.json
+).
+.SH EXIT STATUS
+Returns 0 on success and non-zero on failure.
+.SH SEE ALSO
+.BR audiocontrol (1)
+.SH AUTHORS
+HiFiBerry AudioControl development team.

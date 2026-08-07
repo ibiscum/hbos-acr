@@ -1,10 +1,15 @@
 #!/bin/bash
 
-cd `dirname $0`
+cd "$(dirname "$0")" || exit
 
 # Enable cross-compile support if configured
 _CC_ENV="$(dirname "$0")/../../../scripts/cross-compile-env.sh"
-if [ -f "$_CC_ENV" ]; then source "$_CC_ENV"; else echo "Not using cross-compilation (${_CC_ENV} does not exist)"; fi
+if [ -f "$_CC_ENV" ]; then
+    # shellcheck source=/dev/null
+    source "$_CC_ENV"
+else
+    echo "Not using cross-compilation (${_CC_ENV} does not exist)"
+fi
 
 # Check if DIST is set by environment variable
 if [ -n "$DIST" ]; then
@@ -15,12 +20,12 @@ else
     DIST_ARG=""
 fi
 
-if [ -f target ]; then
+if [ -e target ] || [ -L target ]; then
     echo "Removing previous build target"
-    rm -f target
+    rm -rf target
 fi
 
 sbuild --chroot-mode=unshare \
        --enable-network \
        --no-clean-source \
-       $DIST_ARG
+       "$DIST_ARG"

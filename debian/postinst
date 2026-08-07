@@ -63,9 +63,9 @@ case "$1" in
         # live, since players.d/<type>.json is a conffile owned by the
         # providing package. [ -n "$2" ] also makes the fresh-install case an
         # explicit no-op rather than an incidental one.
-        if [ -x /usr/bin/audiocontrol_migrate_players ] && \
+        if command -v audiocontrol_migrate_players >/dev/null 2>&1 && \
            [ -n "$2" ] && dpkg --compare-versions "$2" lt 0.8.8; then
-            /usr/bin/audiocontrol_migrate_players /etc/audiocontrol/audiocontrol.json || \
+            audiocontrol_migrate_players /etc/audiocontrol/audiocontrol.json || \
                 echo "WARNING: could not migrate audiocontrol.json; check it for duplicate players" >&2
         fi
         ;;
@@ -76,7 +76,7 @@ case "$1" in
         # directory at startup, so without this the new player never shows up.
         # try-restart is a no-op while the service is not running yet.
         if [ -d /run/systemd/system ]; then
-            systemctl try-restart audiocontrol.service || true
+            deb-systemd-invoke try-restart audiocontrol.service >/dev/null || true
         fi
         ;;
 esac
