@@ -2,8 +2,9 @@
 
 This directory contains documentation for various aspects of the HiFiBerry Audio Control REST (Audiocontrol) system.
 
-## Available Documentation
+## Getting Oriented
 
+- [Architecture and Data Flow](architecture.md) - Purpose, high-level architecture, startup sequence, and runtime flow
 - [API Documentation](api.md) - REST API and WebSocket endpoints
 - [Caching](caching.md) - Information about the caching mechanisms used in Audiocontrol
 - [CLI Tools](cli_tools.md) - Command-line tools for interacting with Audiocontrol

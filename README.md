@@ -89,13 +89,14 @@ AudioControl supports the following command line options:
 
 ## Additional Documentation
 
+- [Architecture and Data Flow](docs/architecture.md)
 - [Database Architecture](#database-architecture)
-- [Last.fm Integration](doc/lastfm.md)
-- [API Documentation](doc/api.md)
-- [Caching](doc/caching.md)
-- [Settings Database](doc/settingsdb.md)
-- [Library Management](doc/library.md)
-- [WebSocket Support](doc/websocket.md)
+- [Last.fm Integration](docs/lastfm.md)
+- [API Documentation](docs/api.md)
+- [Caching](docs/caching.md)
+- [Settings Database](docs/settingsdb.md)
+- [Library Management](docs/library.md)
+- [WebSocket Support](docs/websocket.md)
 
 ## Genre Cleanup Bootstrap from MusicBrainz Dumps
 
