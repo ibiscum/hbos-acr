@@ -15,6 +15,23 @@ set -euo pipefail
 # Ensure we're in the project root directory
 cd "$(dirname "$0")"
 
+# One-time Python virtual environment setup
+VENV_DIR=".venv"
+if [ ! -d "$VENV_DIR" ]; then
+    echo "[SETUP] Creating Python virtual environment in $VENV_DIR..."
+    python3 -m venv "$VENV_DIR"
+fi
+
+echo "[SETUP] Activating virtual environment..."
+# shellcheck source=/dev/null
+source "$VENV_DIR/bin/activate"
+
+# Ensure dependencies are installed
+if [ -f "integration_test/requirements.txt" ]; then
+    echo "[SETUP] Installing integration test dependencies..."
+    pip install -q -r "integration_test/requirements.txt"
+fi
+
 # Pre-test cleanup
 echo "[CLEANUP] Cleaning up any existing audiocontrol processes..."
 if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
@@ -48,7 +65,7 @@ cargo build
 # Run Python integration tests
 echo "[TEST] Running integration tests via pytest..."
 cd integration_test
-if ! python3 -m pytest -v --tb=short "${PYTEST_ARGS[@]}"; then
+if ! python -m pytest -v --tb=short "${PYTEST_ARGS[@]}"; then
     TEST_EXIT_CODE=1
 else
     TEST_EXIT_CODE=0

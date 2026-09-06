@@ -70,3 +70,11 @@ audiocontrol.json
 audiocontrol.dev.json
 audiocontrol.log
 CODE_QUALITY_TODO.md
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pycache/ 
+.venv/
