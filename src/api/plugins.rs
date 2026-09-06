@@ -3,6 +3,23 @@ use rocket::serde::json::Json;
 use rocket::{get, State};
 use std::sync::Arc;
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_action_plugins_response_serialization() {
+        let response = ActionPluginsResponse {
+            plugins: vec![
+                PluginInfo { name: "active-monitor".to_string(), version: "1.0.0".to_string() },
+            ],
+        };
+        let json = serde_json::to_string(&response).unwrap();
+        assert!(json.contains("\"name\":\"active-monitor\""));
+        assert!(json.contains("\"version\":\"1.0.0\""));
+    }
+}
+
 /// Response struct for listing active action plugins
 #[derive(serde::Serialize)]
 pub struct ActionPluginsResponse {

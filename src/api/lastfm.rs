@@ -13,6 +13,36 @@ pub struct AuthStatus {
     pub error_description: Option<String>,
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_auth_status_serialization() {
+        let status = AuthStatus {
+            authenticated: true,
+            username: Some("testuser".to_string()),
+            error: None,
+            error_description: None,
+        };
+        let json = serde_json::to_string(&status).unwrap();
+        assert!(json.contains("\"authenticated\":true"));
+        assert!(json.contains("\"username\":\"testuser\""));
+    }
+
+    #[test]
+    fn test_auth_url_response_serialization() {
+        let response = AuthUrlResponse {
+            url: "https://last.fm/auth".to_string(),
+            request_token: "token123".to_string(),
+            error: None,
+        };
+        let json = serde_json::to_string(&response).unwrap();
+        assert!(json.contains("\"url\":\"https://last.fm/auth\""));
+        assert!(json.contains("\"request_token\":\"token123\""));
+    }
+}
+
 #[derive(Serialize)]
 pub struct AuthUrlResponse {
     url: String,

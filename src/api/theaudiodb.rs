@@ -5,6 +5,37 @@ use rocket::http::Status;
 use serde::Serialize;
 use crate::helpers::theaudiodb;
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_the_audio_db_response_serialization_success() {
+        let response = TheAudioDbResponse {
+            mbid: "mbid-123".to_string(),
+            success: true,
+            data: Some(serde_json::json!({"artist": "Test"})),
+            error: None,
+        };
+        let json = serde_json::to_string(&response).unwrap();
+        assert!(json.contains("\"success\":true"));
+        assert!(json.contains("\"mbid\":\"mbid-123\""));
+    }
+
+    #[test]
+    fn test_the_audio_db_response_serialization_error() {
+        let response = TheAudioDbResponse {
+            mbid: "mbid-123".to_string(),
+            success: false,
+            data: None,
+            error: Some("not found".to_string()),
+        };
+        let json = serde_json::to_string(&response).unwrap();
+        assert!(json.contains("\"success\":false"));
+        assert!(json.contains("\"error\":\"not found\""));
+    }
+}
+
 /// Response structure for TheAudioDB lookup
 #[derive(Serialize)]
 pub struct TheAudioDbResponse {

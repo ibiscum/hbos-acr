@@ -7,6 +7,26 @@ use crate::helpers::coverart::{get_coverart_manager, CoverartMethod, CoverartRes
 use crate::helpers::url_encoding::decode_url_safe;
 use crate::helpers::settingsdb;
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::helpers::url_encoding::encode_url_safe;
+
+    #[test]
+    fn test_decode_url_safe_roundtrip() {
+        let original = "The Beatles";
+        let encoded = encode_url_safe(original);
+        assert_eq!(decode_url_safe(&encoded).unwrap(), original);
+    }
+
+    #[test]
+    fn test_invalid_base64_returns_empty_coverart_response() {
+        // This exercises the early-return path for invalid encoded parameters.
+        let response = get_artist_coverart("not-valid-base64!!!".to_string()).into_inner();
+        assert!(response.results.is_empty());
+    }
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct CoverartResponse {
     pub results: Vec<CoverartResult>,

@@ -20,6 +20,53 @@ struct WebSocketMessage {
     source: serde_json::Value,
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn sample_subscription() -> EventSubscription {
+        EventSubscription {
+            players: Some(vec!["test_player".to_string()]),
+            event_types: Some(vec!["state_changed".to_string()]),
+        }
+    }
+
+    #[test]
+    fn test_register_client_increments_id() {
+        let manager = WebSocketManager::new();
+        let id1 = manager.register(sample_subscription());
+        let id2 = manager.register(sample_subscription());
+        assert_ne!(id1, id2);
+    }
+
+    #[test]
+    fn test_update_subscription() {
+        let manager = WebSocketManager::new();
+        let id = manager.register(sample_subscription());
+        assert!(manager.update_subscription(id, EventSubscription {
+            players: None,
+            event_types: None,
+        }));
+    }
+
+    #[test]
+    fn test_update_unknown_subscription_fails() {
+        let manager = WebSocketManager::new();
+        assert!(!manager.update_subscription(9999, sample_subscription()));
+    }
+
+    #[test]
+    fn test_event_type_name_for_various_events() {
+        use crate::data::{PlaybackState, PlayerEvent, PlayerSource};
+
+        let source = PlayerSource::new("test_player".to_string(), "test_id".to_string());
+        assert_eq!(event_type_name(&PlayerEvent::StateChanged { source: source.clone(), state: PlaybackState::Playing }), "state_changed");
+        assert_eq!(event_type_name(&PlayerEvent::LoopModeChanged { source: source.clone(), mode: crate::data::LoopMode::None }), "loop_mode_changed");
+        assert_eq!(event_type_name(&PlayerEvent::RandomChanged { source: source.clone(), enabled: false }), "random_changed");
+        assert_eq!(event_type_name(&PlayerEvent::PositionChanged { source: source.clone(), position: 0.0 }), "position_changed");
+    }
+}
+
 /// Subscription request from client
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EventSubscription {

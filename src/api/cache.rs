@@ -5,6 +5,24 @@ use log::{debug, error};
 use crate::helpers::attributecache::{get_cache_stats, CacheStats};
 use crate::helpers::imagecache;
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_cache_stats_response_success_when_stats_available() {
+        // The global cache may or may not be initialized in unit tests.
+        // We just verify the endpoint builds a response and the success
+        // field follows the documented rule.
+        let response = get_cache_statistics().into_inner();
+        // Success should be true if at least one stats source returned data.
+        assert_eq!(
+            response.success,
+            response.stats.is_some() || response.image_cache_stats.is_some()
+        );
+    }
+}
+
 /// Response structure for cache statistics
 #[derive(Serialize, Deserialize)]
 pub struct CacheStatsResponse {

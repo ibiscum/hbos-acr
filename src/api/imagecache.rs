@@ -5,6 +5,30 @@ use rocket::http::Status;
 use std::path::{Path, PathBuf};
 use crate::helpers::imagecache;
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::PathBuf;
+
+    #[test]
+    fn test_detect_content_type_known_extensions() {
+        assert_eq!(detect_content_type(&PathBuf::from("cover.jpg")), ContentType::JPEG);
+        assert_eq!(detect_content_type(&PathBuf::from("cover.jpeg")), ContentType::JPEG);
+        assert_eq!(detect_content_type(&PathBuf::from("cover.png")), ContentType::PNG);
+        assert_eq!(detect_content_type(&PathBuf::from("cover.gif")), ContentType::GIF);
+    }
+
+    #[test]
+    fn test_detect_content_type_unknown_extension() {
+        assert_eq!(detect_content_type(&PathBuf::from("cover.bin")), ContentType::Binary);
+    }
+
+    #[test]
+    fn test_detect_content_type_no_extension() {
+        assert_eq!(detect_content_type(&PathBuf::from("cover")), ContentType::Binary);
+    }
+}
+
 /// Retrieve an image from the image cache based on a filepath
 ///
 /// This endpoint provides direct access to images stored in the image cache.

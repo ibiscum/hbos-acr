@@ -12,6 +12,37 @@ pub struct BackgroundJobsResponse {
     pub message: Option<String>,
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::helpers::backgroundjobs::BackgroundJob;
+
+    #[test]
+    fn test_background_job_info_completion_percentage() {
+        let mut job = BackgroundJob::new("test-job".to_string(), "Test Job".to_string());
+        job.total_items = Some(10);
+        job.completed_items = Some(5);
+        let info = BackgroundJobInfo::from(job);
+        assert_eq!(info.completion_percentage, Some(50.0));
+    }
+
+    #[test]
+    fn test_background_job_info_completion_percentage_zero_total() {
+        let mut job = BackgroundJob::new("test-job".to_string(), "Test Job".to_string());
+        job.total_items = Some(0);
+        job.completed_items = Some(0);
+        let info = BackgroundJobInfo::from(job);
+        assert_eq!(info.completion_percentage, Some(100.0));
+    }
+
+    #[test]
+    fn test_background_job_info_no_progress() {
+        let job = BackgroundJob::new("test-job".to_string(), "Test Job".to_string());
+        let info = BackgroundJobInfo::from(job);
+        assert_eq!(info.completion_percentage, None);
+    }
+}
+
 /// Enhanced background job information for API response
 #[derive(Serialize, Deserialize)]
 pub struct BackgroundJobInfo {

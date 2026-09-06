@@ -7,6 +7,39 @@ use rocket::response::status::Custom;
 use rocket::http::Status;
 use serde::{Deserialize, Serialize};
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::helpers::lyrics::{LyricsContent, TimedLyric};
+
+    #[test]
+    fn test_lyrics_content_response_from_plain_text() {
+        let content = LyricsContent::PlainText("hello world".to_string());
+        let response: LyricsContentResponse = content.into();
+        match response {
+            LyricsContentResponse::PlainText { text } => assert_eq!(text, "hello world"),
+            _ => panic!("Expected PlainText variant"),
+        }
+    }
+
+    #[test]
+    fn test_lyrics_content_response_from_timed() {
+        let content = LyricsContent::Timed(vec![
+            TimedLyric { timestamp: 0.0, text: "line 1".to_string() },
+            TimedLyric { timestamp: 5.5, text: "line 2".to_string() },
+        ]);
+        let response: LyricsContentResponse = content.into();
+        match response {
+            LyricsContentResponse::Timed { lyrics } => {
+                assert_eq!(lyrics.len(), 2);
+                assert_eq!(lyrics[0].timestamp, 0.0);
+                assert_eq!(lyrics[1].text, "line 2");
+            }
+            _ => panic!("Expected Timed variant"),
+        }
+    }
+}
+
 /// Request structure for lyrics lookup by metadata
 #[derive(Deserialize)]
 pub struct LyricsRequest {

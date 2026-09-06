@@ -20,6 +20,46 @@ pub struct StoreTokensRequest {
     expires_in: u64, // Seconds until token expires
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_store_tokens_request_deserialization() {
+        let request: StoreTokensRequest = serde_json::from_str(r#"{
+            "access_token": "access123",
+            "refresh_token": "refresh456",
+            "expires_in": 3600
+        }"#).unwrap();
+        assert_eq!(request.access_token, "access123");
+        assert_eq!(request.refresh_token, "refresh456");
+        assert_eq!(request.expires_in, 3600);
+    }
+
+    #[test]
+    fn test_api_response_serialization() {
+        let response = ApiResponse {
+            status: "success".to_string(),
+            message: "OK".to_string(),
+            expires_at: Some(1234567890),
+        };
+        let json = serde_json::to_string(&response).unwrap();
+        assert!(json.contains("\"status\":\"success\""));
+        assert!(json.contains("\"expires_at\":1234567890"));
+    }
+
+    #[test]
+    fn test_token_status_serialization() {
+        let status = TokenStatus {
+            authenticated: true,
+            expires_at: Some(1234567890),
+        };
+        let json = serde_json::to_string(&status).unwrap();
+        assert!(json.contains("\"authenticated\":true"));
+        assert!(json.contains("\"expires_at\":1234567890"));
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ApiResponse {
     status: String,

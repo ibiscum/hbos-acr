@@ -9,6 +9,25 @@ use rocket::response::status::Custom;
 use rocket::http::Status;
 use serde::{Deserialize, Serialize};
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_ok_response() {
+        let response = ok("it worked").into_inner();
+        assert!(response.success);
+        assert_eq!(response.message, "it worked");
+    }
+
+    #[test]
+    fn test_err_response() {
+        let response = err_response(Status::BadRequest, "nope").1.into_inner();
+        assert!(!response.success);
+        assert_eq!(response.message, "nope");
+    }
+}
+
 /// Response wrapper for the effective (merged) genre config
 #[derive(Serialize)]
 pub struct GenreConfigResponse {

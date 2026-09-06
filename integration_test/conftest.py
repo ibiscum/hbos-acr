@@ -20,17 +20,18 @@ import pytest
 import requests
 import psutil
 
-# Test configuration
+# Test configuration. Each test type uses a unique port so tests can run
+# concurrently without collisions.
 TEST_PORTS = {
     'generic': 18080,
-    'librespot': 18080,
-    'activemonitor': 18080,
-    'raat': 18080,
-    'theaudiodb': 18080,
-    'fanarttv': 18080,
-    'volume': 18080,
-    'coverart': 18080,
-    'cache': 18080,
+    'librespot': 18081,
+    'activemonitor': 18082,
+    'raat': 18083,
+    'theaudiodb': 18084,
+    'fanarttv': 18085,
+    'volume': 18086,
+    'coverart': 18087,
+    'cache': 18088,
 }
 
 # Path configurations for different test types
@@ -793,6 +794,16 @@ def cache_server():
     assert server.start_server(), "Failed to start cache test server"
     yield server
     server.stop_server()
+
+
+@pytest.fixture
+def websocket_server():
+    """Fixture for WebSocket integration tests"""
+    server = AudioControlTestServer("generic", TEST_PORTS['generic'])
+    assert server.start_server(), "Failed to start WebSocket test server"
+    yield server
+    server.stop_server()
+
 
 if __name__ == "__main__":
     # Run cleanup if executed directly

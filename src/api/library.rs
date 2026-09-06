@@ -16,6 +16,39 @@ fn match_type_str(mt: &ArtistMatchType) -> String {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_match_type_str() {
+        assert_eq!(match_type_str(&ArtistMatchType::Exact), "exact");
+        assert_eq!(match_type_str(&ArtistMatchType::CaseInsensitive), "case_insensitive");
+        assert_eq!(match_type_str(&ArtistMatchType::Fuzzy), "fuzzy");
+    }
+
+    #[test]
+    fn test_create_album_dto_drops_tracks_when_requested() {
+        let album = Album {
+            id: crate::data::Identifier::String("album-id".to_string()),
+            name: "Test Album".to_string(),
+            artists: std::sync::Arc::new(parking_lot::Mutex::new(vec![])),
+            artists_flat: None,
+            release_date: None,
+            tracks: std::sync::Arc::new(parking_lot::Mutex::new(vec![])),
+            cover_art: None,
+            uri: None,
+            genres: vec![],
+        };
+        let dto_with_tracks = create_album_dto(album.clone(), true);
+        assert!(dto_with_tracks.tracks.is_some());
+
+        let dto_without_tracks = create_album_dto(album, false);
+        assert!(dto_without_tracks.tracks.is_none());
+        assert_eq!(dto_without_tracks.tracks_count, 0);
+    }
+}
+
 /// Response structure for library information
 #[derive(serde::Serialize)]
 pub struct LibraryResponse {

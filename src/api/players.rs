@@ -752,6 +752,84 @@ pub fn update_player_state(
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::data::{LoopMode, PlayerCommand};
+
+    #[test]
+    fn test_parse_simple_commands() {
+        assert_eq!(parse_player_command("play", None).unwrap(), PlayerCommand::Play);
+        assert_eq!(parse_player_command("pause", None).unwrap(), PlayerCommand::Pause);
+        assert_eq!(parse_player_command("playpause", None).unwrap(), PlayerCommand::PlayPause);
+        assert_eq!(parse_player_command("stop", None).unwrap(), PlayerCommand::Stop);
+        assert_eq!(parse_player_command("next", None).unwrap(), PlayerCommand::Next);
+        assert_eq!(parse_player_command("previous", None).unwrap(), PlayerCommand::Previous);
+        assert_eq!(parse_player_command("kill", None).unwrap(), PlayerCommand::Kill);
+        assert_eq!(parse_player_command("clear_queue", None).unwrap(), PlayerCommand::ClearQueue);
+    }
+
+    #[test]
+    fn test_parse_loop_commands() {
+        assert_eq!(parse_player_command("loop:none", None).unwrap(), PlayerCommand::SetLoopMode(LoopMode::None));
+        assert_eq!(parse_player_command("loop:track", None).unwrap(), PlayerCommand::SetLoopMode(LoopMode::Track));
+        assert_eq!(parse_player_command("loop:playlist", None).unwrap(), PlayerCommand::SetLoopMode(LoopMode::Playlist));
+        assert_eq!(parse_player_command("set_loop:song", None).unwrap(), PlayerCommand::SetLoopMode(LoopMode::Track));
+        assert_eq!(parse_player_command("loop:song", None).unwrap(), PlayerCommand::SetLoopMode(LoopMode::Track));
+    }
+
+    #[test]
+    fn test_parse_seek_command() {
+        assert_eq!(parse_player_command("seek:42.5", None).unwrap(), PlayerCommand::Seek(42.5));
+    }
+
+    #[test]
+    fn test_parse_random_command() {
+        assert_eq!(parse_player_command("random:true", None).unwrap(), PlayerCommand::SetRandom(true));
+        assert_eq!(parse_player_command("random:false", None).unwrap(), PlayerCommand::SetRandom(false));
+        assert_eq!(parse_player_command("set_random:on", None).unwrap(), PlayerCommand::SetRandom(true));
+        assert_eq!(parse_player_command("set_random:off", None).unwrap(), PlayerCommand::SetRandom(false));
+    }
+
+    #[test]
+    fn test_parse_remove_track_command() {
+        assert_eq!(parse_player_command("remove_track:5", None).unwrap(), PlayerCommand::RemoveTrack(5));
+    }
+
+    #[test]
+    fn test_parse_play_queue_index_command() {
+        assert_eq!(parse_player_command("play_queue_index:3", None).unwrap(), PlayerCommand::PlayQueueIndex(3));
+    }
+
+    #[test]
+    fn test_parse_add_track_command() {
+        let body = Json(serde_json::json!({
+            "uri": "spotify:track:123",
+            "metadata": {"title": "Test"}
+        }));
+        let cmd = parse_player_command("add_track", Some(&body)).unwrap();
+        match cmd {
+            PlayerCommand::QueueTracks { uris, insert_at_beginning, metadata } => {
+                assert_eq!(uris, vec!["spotify:track:123".to_string()]);
+                assert!(!insert_at_beginning);
+                assert_eq!(metadata.len(), 1);
+                assert!(metadata[0].is_some());
+            }
+            _ => panic!("Expected QueueTracks command"),
+        }
+    }
+
+    #[test]
+    fn test_parse_add_track_missing_body() {
+        assert!(parse_player_command("add_track", None).is_err());
+    }
+
+    #[test]
+    fn test_parse_unknown_command() {
+        assert!(parse_player_command("frobnicate", None).is_err());
+    }
+}
+
 /// Helper function to parse player commands
 fn parse_player_command(cmd_str: &str, request_data: Option<&Json<serde_json::Value>>) -> Result<PlayerCommand, String> {
     // Handle simple commands
@@ -800,9 +878,10 @@ fn parse_player_command(cmd_str: &str, request_data: Option<&Json<serde_json::Va
         match cmd.to_lowercase().as_str() {
             "set_loop" | "loop" => {
                 // Parse loop mode
-                match param.to_lowercase().as_str() {
+                let param_lower = param.to_lowercase();
+                match param_lower.as_str() {
                     "none" => return Ok(PlayerCommand::SetLoopMode(LoopMode::None)),
-                    "track" => return Ok(PlayerCommand::SetLoopMode(LoopMode::Track)),
+                    "track" | "song" => return Ok(PlayerCommand::SetLoopMode(LoopMode::Track)),
                     "playlist" => return Ok(PlayerCommand::SetLoopMode(LoopMode::Playlist)),
                     _ => {
                         // Try parsing with from_str if available

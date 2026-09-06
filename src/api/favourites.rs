@@ -6,6 +6,24 @@ use log::{info, error};
 use crate::data::song::Song;
 use crate::helpers::favourites;
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_favourite_request_struct_deserialization() {
+        let request: FavouriteRequest = serde_json::from_str(r#"{"artist":"The Beatles","title":"Hey Jude"}"#).unwrap();
+        assert_eq!(request.artist, "The Beatles");
+        assert_eq!(request.title, "Hey Jude");
+    }
+
+    #[test]
+    fn test_routes_returns_expected_count() {
+        let routes = routes();
+        assert_eq!(routes.len(), 4);
+    }
+}
+
 /// Request payload for adding/removing favourites
 #[derive(Deserialize)]
 pub struct FavouriteRequest {
