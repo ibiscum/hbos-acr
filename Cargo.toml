@@ -59,7 +59,7 @@ hex = "0.4.3"
 aes-gcm = "0.10.2"
 rand = "0.10.2"
 # For filesystem notifications
-notify = "6.0"
+notify = "8.2"
 base64 = "0.21.0"
 # For testing
 tempfile = "3.8.1"
