@@ -108,7 +108,7 @@ md5 = "0.8.1"
 
 # Development dependencies for testing
 [dev-dependencies]
-serial_test = "3.0"
+serial_test = "4.0"
 tempfile = "3.12"
 tokio-test = "0.4"
 
