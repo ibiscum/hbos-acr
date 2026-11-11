@@ -680,8 +680,8 @@ impl ShairportController {
                 *current_song.lock() = None;
                 *pending_song.lock() = None;
             }
-            ShairportMessage::SessionEnd(session_id) => {
-                debug!("Session ended: {}", session_id);
+            ShairportMessage::SessionEnd(_session_id) => {
+                debug!("Session ended");
                 let mut state = current_state.lock();
                 state.state = PlaybackState::Stopped;
                 base.notify_state_changed(PlaybackState::Stopped);
